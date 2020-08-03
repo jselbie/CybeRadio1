@@ -1,0 +1,328 @@
+Welcome to Cyber Radio 1 !
+
+Overview
+--------
+Cyber Radio 1 is a Unix based client/server system for transmitting
+live audio to multiple remote machines on a TCP/IP network such
+as the Internet.
+
+
+It was originally written in the Fall of 1994 for project WREK-NET, which
+is the live Internet broadcast system for the Georgia Tech radio station,
+WREK Atlanta 91.1 FM.
+
+
+As I write this INSTALL file, I am listening to WREK on my Sun Workstation
+from the University of Florida.
+
+
+The basic operation is as follows:
+
+
+The client program, "cr1", establishes a connection with a server.  The
+server programs, in turn, begin sending digitized data to the remote
+client.  The client program sends the incoming data stream to it's
+audio device which is then heard by the listener.  The default setup
+allows for up to 10 clients to connect to a server at once.  A server
+can be setup to allow up to even more clients to connect at once.
+
+
+Here is an overview of all the programs:
+
+cr1: This is the client program.  It will work with any UNIX system
+     that supports a file system sound device interface (e.g. /dev/audio) 
+     configured the same as the server.  This program will also
+     work with SGI workstations.
+
+request: This is the "listening" thread of the server.  It listens on
+         the network channel for connection requests from clients and
+         manages connections.
+
+server:  This is the "speaking" thread of the server.  It constantly
+         reads from the audio device and sends packets of data to
+         clients that are connected (via the request program).
+
+bconsole: This is a server utility program that shows who is currently
+          connected to the server.
+
+terminate: A server utility program to terminate a connection with a specific
+           client.
+
+talk:    Sends a text message to a specific client that is to be displayed
+         on their screen.
+
+
+
+The standard audio device format is the 8000hz/8-bit uLaw (mu-law) that is
+provided through the "/dev/audio" interface.  Other formats may be used,
+but this is a standard that all Suns and most UNIX machines support.  It's
+assumed that the person running the server has sound support installed.
+
+
+Ian Smith of Georgia Tech, was kind enough to provide the code for SGI
+client support.  The SGI client programs assume that the incoming data is
+in the uLaw format format for the conversion to 16-bit linear.
+
+Pre-Built Binaries
+------------------
+This distribution includes an ELF binary for the client (receiver).
+This binary was compiled against Linux kernel 2.1.26. If it does not
+work for you, you must recompile.  Otherwise, you can start the client
+merely by typing one of the below at the command line:
+
+cr1 -i wrekquest.gatech.edu
+cr1 -i kzsu-cr1.stanford.edu
+cr1 -i wcsb.org
+cr1 -i marconi.kmnr.umr.edu
+cr1 -i icradio.su.ic.ac.uk
+cr1 -i summer.lh.umist.ac.uk
+
+Additional broadcasters might be found by checking with the CyberRadio1
+web page.  If you want to become a broadcaster, read on ...
+
+
+Compiling
+---------
+Compiling and installing the program is as follows:
+
+First edit the file "cr1.h"
+
+  In this file there is a line that looks like the following:
+  #define SERVER_NAME     "cyber.radio.org"
+
+  Change the name "cyber.radio.org" to the IP address or DNS name of
+  the server.  The quotation marks are necessary.  The client program
+  uses this constant for knowing who the default server is.  Examples
+  of valid values for this constant include "machine_name.network.edu"
+  or "130.129.128.4"
+  
+  Further, you many want to change these lines as well (only if you know
+  what you are doing):
+
+  #define CONTROL_PORT 19222
+  #define DATA_PORT 9222
+  #define SERVER_SEND_PORT 29222
+
+  All ports in CR1 are of the UDP (user datagram) type.  The CONTROL_PORT
+  is the port the server listens for connection requests from clients on.
+  The DATA_PORT is the default port that the client receives data on.  The
+  SERVER_SEND_PORT is the port that the server sends data out on.  It's
+  probably best that you leave these lines alone.
+
+
+Now edit the Makefile
+  It is assumed that the person putting this software system together
+  knows the basics fo using Makefiles and compiling and building programs.
+  The Makefile has the name "Makefile".  Lines in this file that begin with
+  "#" are comments.
+
+  Linux, BSD, and Sun Sparcs running SunOS 4, and most others may skip
+  the Makefile editing step.
+
+  Solaris and SGI systems require Makefile editing
+
+  Solaris(SunOS 5) requires these lines to be uncommented:
+
+    LIBS= -lsocket -lnsl
+    DEFS= -DSOLARIS -DNEED_BCOPY
+  
+  Solaris enthusiasts can note that version 2.5 of the OS (due out Nov.7 95)
+  supports the bcopy() and bzero() function calls.  Thus, only the -DSOLARIS
+  argument would be needed in that case.  The -DSOLARIS argument is so
+  that the server programs can be compiled.  It causes the shm.c source
+  file to explicitly declare a "semun" structure.
+
+  Only client support for SGI is available now.  Uncomment these
+  lines for proper compilation of the client program:
+
+    AUDIO_LIBS= -laudio
+    AUDIO_OBJ=tables.o audio_sgi.o
+  
+
+  The Makefile will also gives suggestions for what compiler to use
+  on various platforms.  In general, gcc will do.  But Solaris and
+  SGI have their own native compilers.  Uncomment the necessary lines
+  at the top of the Makefile to use these.
+
+To generate a complete client and server system for a particular
+platform, type the following:
+
+  make
+
+This should build everything.
+
+To build just a client program, type the following:
+
+  make cr1
+
+If you are compiling under Solaris, you will see a screenful of warning
+messages.  These are just warning messages, so don't mistake them for
+errors.  The programs should still compile.
+
+
+Running
+-------
+
+Let's start by explaining how to start the server.
+
+To run a server, hook up an audio source (e.g. microphone, radio, cd player)
+to the sound card or audio input device with a proper cable.  It's assumed
+that the network connection is in place.
+
+
+If needed, use the proper software to set the record volume to an
+appropriate level.
+
+Now to start start the server, type the following:
+
+  request &
+
+Then type
+
+  server &
+
+The server is now running.  To verify this, run the client program
+on the same machine.  Since the client program can't acccess the audio
+device (the server has it locked), a command line directive
+can be used to send the audio output to the screen.  Type the following:
+
+  cr1 -o
+
+An endless stream of data should flood the screen.  If the stream is
+just a few chars that repeat themselves, this means either that the audio
+source is very quiet or the software setting for the record volume needs
+to be raised.
+
+Press CTRL-C to end the client program.
+
+
+Now let's demonstrate how to run the client with audio:
+
+With the server programs still running, go to the console of another
+machine.  Compile a client program for this platform.  Set the volume
+to an appropriate level.  Type the following at the prompt:
+
+  cr1
+
+If all goes well, you should hear the audio coming out of the speaker.
+
+For more information on volume control and input gain settings, read the
+volume control section at the end of this file.
+
+With the client and server programs still running, go back to the
+window of the server.  Type the following at the prompt:
+
+  bconsole
+
+The program should list all the "connection slots" for any client that
+is connected.  "Channel 1" should display the connection information
+for the first channel.  A "CR1" prompt should be active as well.
+
+Type "q" followed by enter to leave this program. 
+
+To learn more about all of these programs, see the file entitled
+RUNNING for explanations on the various command line parameters and
+options these programs provide.
+
+
+Sun Volume
+----------
+If you are using a Sun workstation, the audio levels for input and output
+can be set with the "gaintool" program.  This program usually exists in
+the directory /usr/demo/SOUND or /usr/demo/SOUND/bin.  It is an x-windows
+program.  Make sure that the output button is pressed to "speaker" and not
+"jack" unless are listening through headphones.
+
+SGI Volume
+----------
+Somewhere on one of those desktop panels is the "Audio Panel".  Set the
+output rate to "8000hz" and set the volume sliders to an appropriate level.
+
+Linux/BSD volume
+----------------
+Some sound cards don't support any types of mixer programs, and have
+a default input gain and output volume.  The 8-bit soundblaster cards
+fit into this category.
+
+The newer 16-bit cards support various mixer programs.  Get one off the
+net and install it.  Play around with the settings.
+
+
+Additional
+----------
+
+You can increase the amount of clients a server can have by increasing
+the constant "MAX_CONNECTIONS" in the cr1.h file and then recompile the
+server.  However, if this number goes 26, you will also have to increase
+the amount of shared memory size by increasing the constant "MEM_SIZE"
+which is also defined in cr1.h.  Every client slot above 26 requires
+an additional 115 bytes of memory.  See shm.h for details on these
+structures.
+
+
+All connections to the server are syslog'd.  The syslog messages
+get recorded as "INFO" and "DAEMON" messages.  If you don't
+want this behavior, edit request.c and delete all the lines that
+make the "syslog()" function call.
+
+If you do use the syslog features, configure syslogd to place INFO-DAEMON
+messages in a specific file.
+
+
+
+Final note
+----------
+
+I am willing to surmise that the most common error when running a client
+and server is the running of more than one instance of a program.  I speak
+from experience.
+
+
+For example, if "cr1" complains that it can't open the audio device, or
+doesn't make a connection with the server, it may be because it is already
+running and that the volume is turned down.
+
+
+A server configuration error that I encounter often when making
+changes is that I forget to kill both "request" and "server" before
+starting the system again.
+
+
+In general, when more than one instance of a server program is run,
+the results are unpredictable.  Most likely it will result in the
+audio device being locked or the inability to connect with clients.
+
+
+Always do a "ps -aux" or "ps -ef" (svr4) to see what processes are running
+on your system.  If multiple client or server programs are running,
+remove all of them with the "kill" command and start over.
+
+
+If you kill "request", you should likewise kill "server" before starting
+"request" again.
+
+
+Accidently running multiple client programs does not mean having
+to restart the server programs.
+
+
+-------------------------------------------------------------------------
+I certainly hope that you find Cyber Radio 1 useful.  I and many other
+WREK listeners ertainly do.
+
+Questions, comments, complaints, death threats, and love letters can be 
+directed to me via e-mail at:
+
+    jselbie@cis.ufl.edu
+
+Don't forget to occasionally check out the Cyber Radio 1 web page
+for updates.  It's located at:
+
+    http://www.cis.ufl.edu/~jselbie/cr1.html
+
+(I'm hoping to hack the SGI code so that SGI's can be servers)
+
+Happy listening !
+
+John Selbie
+

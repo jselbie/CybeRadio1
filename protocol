@@ -1,0 +1,31 @@
+
+The WREK-NET protocol is as follows.  See the packet format
+listings for details on how specific parts of each message
+is sent out.
+
+
+1) For a client to establish a connection with a server it sends
+   out a CLIENT packet to the server host with the op-code
+   set to REQUEST.  The port number that services it desire on
+   defaults to 9110 unless it is changed with the -p command line option.
+   The port that this packet leaves on is usually set by the OS 
+   and is not important.
+
+2) When the server receives the CLIENT packet, it in turn starts
+   sending out SERVER packets that contain audio data.  The op-code
+   in each packet is set to AUDIO_ULAW.
+
+3) Every 20 seconds, the client program sends out a REQUEST packet
+   identical to what it sent out in step 1.  This is so that the
+   server system knows the client is still connected.
+
+4) Should the CLIENT ever want to disconnect from the server is
+   sends a client packet with the op-code set to TERMINATE.
+
+5) If the server ever wants to send a text message to the user
+   running a client program, the text string must be encapsulated
+   as data in a SERVER packet and the op-code is set to TEXT.
+
+6) Should the server even want to disconnect from a client,
+   the op-code of the SERVER packet must be set to TERMINATE.
+

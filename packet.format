@@ -1,0 +1,47 @@
+Possible op-codes:
+
+AUDIO_ULAW = 1 : The data is in 8-bit ulaw format
+TEXT = 2       : The data to follow is a text string
+
+REQUEST = 3 :   A request or notification that service is desired
+TERMINATE = 4 : Friendly notification that service is going to be
+                cut off or that service should be cut off.
+
+
+There are two different types of packet formats.  SERVER packets
+originate from the server system to the client.
+
+It has the following format:
+BYTES        meaning
+--------------------
+0-13         header:  Cyber Radio 1 (includes null at end)
+
+14           op-code: tells what type of data the packet is
+                      (see above table of data types)
+
+15-18        size:    number of bytes of data that is to follow
+                      (this is a 32bit number in network byte order)
+
+19-(size+18) data:    could be text or audio data depending on the type
+
+
+A CLIENT packet is a message from the client program to the server system.
+
+It's format:
+BYTES        meaning
+--------------------
+0-13         header:  Cyber Radio 1 (includes null at end)
+
+14- 15       port number:  what port number we desire service on
+                           (net byte order)
+
+16-35        user-name:    what's the login name of the owner of the client
+                           program.
+
+36-65        host-name:    What's the client's hostname
+
+66-95       domain-name:  Client host's domain name
+
+96:         op-code:      Could be REQUEST or TERMINATE
+
+

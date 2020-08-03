@@ -1,0 +1,177 @@
+Welcome to Cyber Radio 1 !
+
+
+Cyber Radio 1 is the distribution name of the live Internet audio
+broadcast system that I wrote for the Georiga Tech student radio
+station, WREK Atlanta 91.1 FM. WREK has been using this system for the
+past year under the name WREK-NET.
+
+
+Cyber Radio 1 is a client/server system. The server continually reads
+digital data from the audio device (e.g. /dev/audio) and multiplexes it
+out to any number of connected clients. Connected clients in turn,
+receive the digital audio data to play out of their audio device.
+
+
+The Cyber Radio 1 system has been tested to work with any Sun Sparc,
+Linux, or BSD system with an audio device. The client program will work
+on any SGI workstation as well.  It's reported that it should work on
+HP/UX workstations as well. It could potentially work on NeXT machines
+and other systems with minimal hacking. There is no reason why a
+Windows version couldn't be made.
+
+
+
+Cyber Radio 1 consists of the following programs:
+
+     A server program. 
+
+     A client program. 
+
+     A server utility program that displays current client/server
+     connection information. 
+
+     Other utility programs to manage connections, including a sample
+     program that can send text messages to clients. 
+
+     A special version of the client program and shell script that sends
+     short samples of audio data over the WWW as a CGI-BIN program. 
+
+
+Cyber Radio 1 is being distributed under the GNU General Public
+License. The GNU GPL is gives everyone the right to have access to the
+source code, the right to modify, and redistribute under the terms of
+the GNU GPL.  Read the file labeled COPYING for more information.
+
+
+Cyber Radio 1 is intended for radio stations with a fast connection to
+the Internet to broadcast their sound on. It is especially hoped that
+other computer hackers that work in college radio will attempt to use
+it and perhaps improve it.
+
+
+Although it is not as sophisticated as Cu-See-Me, RealAudio, or other
+net audio software, the sound quality of CR1 is better suited for
+music. In addition, the client and server processes use minimal CPU and
+network resources.
+
+
+Cyber Radio 1 has been written in C and will compile on any UNIX
+system. After downloading the package, read the file labeled "INSTALL"
+for instructions on how to build it into a network audio broadcast system.
+
+
+
+Below is a list of all the files included
+
+
+audio_sgi.c   - SGI AUDIO CODE
+audio_sgi.h   - SGI AUDIO CODE
+tables.c      - SGI AUDIO CODE
+tables.h      - SGI AUDIO CODE
+
+cr1.c         - CLIENT PROGRAM 
+cr1.h         - CLIENT PROGRAM
+
+request.c     - SERVER PROGRAM
+server.c      - SERVER PROGRAM
+bconsole.c    - SERVER BROADCAST CONSOLE
+
+shm.c         - IPC SERVICES FOR ALL SERVER PROGRAMS
+shm.h         - IPC SERVICES FOR ALL SERVER PROGRAMS
+
+talk.c        - SERVER UTILITY PROGRAM
+terminate.c   - SERVER UTILITY PROGRAM
+
+README        - THIS FILE
+COPYING       - GNU PUBLIC LICENSE
+INSTALL       - INSTALLATION GUIDE
+
+
+webdemo.c     - WWW demo program of CR1  (Solaris)
+webdemo.cgi   - WWW demo cgi script
+cr1.py        - Python version of the client program
+
+MISC          - information about the python and web demo files
+
+packet.format - The UDP packet format for CR1 client server communication
+protocol      - The CR1 protocol
+
+HACKING       - Information for people interested in improving CR1
+
+
+Users of this software package are expected to have read the file
+COPYING.  This is the GNU public license.  It specifies the terms
+of the software's distribution and it's warranty.
+
+
+Special thanks to the following people:
+
+eric.buckhalt@wrek.radio
+strick@techwood
+heather@utexas
+captain@actlab
+kral@bsdi.hefnet.org
+aaron@rama.hefnet.org
+joel@skeeter.hefnet.org
+joe.dennison@ec85.residence
+iansmith@stein.club
+keith@multimedia
+will.moore@wrek.radio
+gregh@punk.rock
+rick@pink.palace
+all@oit.gatech.edu
+
+stevie.lefcort@wrek.radio
+chris.campbell@duck.wrek.radio
+richard.musterer@wrek.radio
+richard.westrick@wrek.radio
+linda.deerborne@wrek.radio
+jason.pickering@french.toast
+
+bhollon@mellon
+skibo@sgi
+
+
+Thank you again to Ian Smith for the SGI Audio code.
+
+-------------------------
+New! Improved!
+
+If you have a net connection like mine, you will have discovered that 
+the cr1 client, in it's original state, doesn't work very well if you
+are more than a few network hops away from the broadcaster.  The UDP
+packets on which this client get dropped, show up late, etc.  To improve
+sound delivery, I have added a circular buffer (fifo) to buffer up
+packets as they arrive.  This means it will take a few seconds for the
+client to start up, but when it does, the sound will be more continuous.
+
+The buffer helps with reception, but it is not perfect.  UDP packets are
+sent in real time, and if one is lost, there *will* be a pause or skip
+in the music.  To this end, I have begun to experiment with dynamic rate
+adaptation, to ever-so-slightly slow things down so that the audio
+pauses due missing packets and gaps don't result in silence.  However,
+the rate adaptation code is incomplete, and is currently disabled.  I
+was unable to complete this work because thre seems to be bugs in the
+version of ossfree I am running (v3.8beta5) and/or in linux v.2.1.26.
+Basically, I never get EAGAIN on a full audio device, and if I overstuff
+the device, it goes into an infinite loop. Sigh.  
+
+Another idea I would like to discuss with anyone is a semi-gaurenteed 
+packet delivery scheme for UDP, more suitable for real-time streams such
+as audio and video.  The idea is that packets are given sequence
+numbers, and that packets that aren't delivered get re-requested. Of
+course, extremely stale re-requests are ignored, as is appropriate for
+real-time streams.
+
+The semi-gaurenteed UDP has several immense advatages as compared to
+TCP. First, the audio server does not need to keep O(n) connections to n
+clients: it only needs to keep the last ten or twenty seconds worth of
+data (i.e. only 100K to 200K of data for 8K ulaw sound).  If
+re-transimit requests show up for packets older than that, they are
+ignored.  Also, unlike tcpip, there is no acknowledgement of receipt
+send.  Instead, there is an acknowledgement of loss.  Anyone interested
+in playing with this, please write me.
+
+15 Feb 1997 -- Linas Vepstas linas@fc.net
+

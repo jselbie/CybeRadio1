@@ -1,0 +1,28 @@
+Begin3
+Title:          Cyber Radio 1 
+Version:        970215
+Entered-date:   Februrary 15, 1997
+Description:    Internet radio broadcast software - client-server system.
+                This the complete source code to WREK-NET, the Georgia Tech
+                student radio station's Internet broadcast system.  Server
+                reads digitized audio from /dev/audio and transmits to
+                any number of connected clients. Originally developed
+                for Linux.  See http://www.cis.ufl.edu/~jselbie/cr1.html
+
+                Buffering has been added to slightly improve the quality
+                of the sound for those listeners who are very far away
+                from the radio stations. Dropouts remain a problem.
+                Also, precompiled ELF binaries are included in this
+                distribution.  Contact linas@fc.net about these changes.
+                
+Keywords:       CyberRadio1 internet radio WREK
+Author:         jselbie@cis.ufl.edu (John Selbie)
+Maintained-by:  jselbie@cis.ufl.edu (John Selbie)
+Primary-site:   sunsite.unc.edu /pub/Linux/apps/sound
+                1K: CyberRadio1a.lsm
+                48K: CyberRadio1a.tar.gz
+Alternate-site: 
+Original-site:  ftp.gatech.edu /pub/wrek/CyberRadio1
+Platform:       Any UNIX that supports /dev/audio like device or SGI
+Copying-policy: GPL
+End

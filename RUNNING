@@ -1,0 +1,164 @@
+Simple Man pages to Cyber Radio 1
+See the file INSTALL for compiling and basic running information
+================================================================
+cr1 - Cyber Radio 1 client reception program
+
+SYNOPSIS
+  cr1 [ -a device ] [ -p port ] [ -i server address] [-r server port] [ -o ]
+
+
+DESCRIPTION
+Typing "cr1" at the command line of a workstation that has sound
+support will connect to the default server and begin playing received
+data on the audio device.
+
+
+REQUIREMENTS
+	This program only will work under the following conditions:
+
+	1)	The user running the program is sitting at the console
+		of the computer that is to play the sound.  A "dialup"
+		connection with a modem or remote login will not work.
+
+	2)	A sound device is available for use.  It must be configured
+		for 8-bit/8000hz uLaw data. 
+
+	3)	The connection to the Internet must be fast.  A minimum
+		transfer rate of 8,000 bytes/sec is needed for this
+		to work.  Thus, a modem connection such as "slip"
+		(or any similar type connection) will cause unpredictable
+		results.
+
+
+STARTING THE PROGRAM
+	To begin receiveing audio data and to have it played out the
+workstation speaker, type "cr1" at your shell prompt to start a connection
+with the CR1 server.  Command line options described below will allow the
+user to configure his sound and network connection.
+
+
+ENDING THE PROGRAM
+	To disconnect from the server and end the radio session, a simple
+"CTRL-C" will end the program.  If "cr1" is running in the background, 
+then either bringing the program to the foreground and then hitting "CTRL-C"
+will disconnect the computer as well.  Exiting from a shell in which the
+program was started from, will disconnect as well.  A message is displayed
+on the screen to indicate that the program has ended.
+
+
+OPTIONS
+Normally, "cr1" with no command line options will be sufficient to
+start the system.  Command line options are to customize the connection
+and sound device.
+
+	-a	Send the audio to an alternate character device specified as
+		"device".  The default audio device is /dev/audio.  On some
+	 	systems, the 8-bit/8000hz sound device is /dev/audio1.  This
+		is also useful for sending output to a specific console
+		window such as /dev/tty1 or such.
+
+	-p 	Port number for the server to send data to.  Be default,
+		this is 9222.  However, any port between 1025 and 65535 can
+		be used.
+
+	-i	Specifies the ip address of the server that you want to
+		start a session with.  The default is the machine name
+                identified by SERVER_NAME in the file cr1.h.
+
+	-r	Specifies the UDP port of the server that you want to
+		start a session with.  The default is 19222 or whatever
+		number was pre-compiled.
+
+	-o	Send the audio to standard ouput.  This is useful of
+		displaying the audio data to the screen or to have
+		audio redirected to a file.  Audio will not be sent
+		to the audio device if this option is used.  Please
+		remember, that if redirection to a file is used, the
+		the program writes data to the file system at a rate
+		of 8000 bytes/sec.  You could overfill the filesystem
+		if you leave this running too long.
+
+
+DEBUGGING
+	If no sound is heard, then use the -o option to have the audio
+data displayed as characters.  A constant stream of the same character
+indicates that server may be "off the air" or not sampling any signal.
+If the server is not up and running, a message indicating a failed connection
+is displayed.
+
+===========================================================================
+server - Samples digital audio and sends to all currently connected clients
+
+SYNOPSIS
+  server [ -a device ]  [-i] 
+
+The "request" program must already be running before this program is started.
+
+An explanation of the command line parameters is as follows:
+
+        -a      Read the audio from an alternate character device specified as
+                "device".  The default audio device is /dev/audio.  On some
+                systems, the 8-bit/8000hz sound device is /dev/audio1.
+
+        -i      Read the audio input from standard input.  Useful for
+                piping a client running the -o option into a server
+                to be used as a reflector.
+
+
+===========================================================================
+bconsole - the broadcast console
+
+
+SYNOPSIS
+  bconsole
+
+
+  Typing bconsole at the prompt displays all the current connections at
+  that moment.  A program command prompt follows.
+
+  Commands to the broadcast console are as follows:
+
+  l - Typing "l" presents an updated list of currently connected clients
+      This command can take an optional numeric argument for displaying
+      just a single "channel slot".
+
+  d # - Typing "d" followed by a numeric argument will force a disconnection
+        from the client in that slot.  The client program is left hanging
+        with not indication of what happened.
+
+  q - quits the bconsole program
+
+============================================================================
+terminate - terminates a connection to a client
+
+SYNOPSIS
+  terminate ip [port]
+
+  "terminate" sends a message to a remote client informing it to stop.
+  
+  When a terminate message is sent to a machine running the CR1 client
+  program, the client immediately terminates.  
+
+  "ip" is the IP address or DNS name of the client.
+
+  "port" is an optional numeric argument.  It's used to send a terminate
+   message to a client that is not connected on the default port.
+
+  IP address and port numbers can be obtained from the broadcast console
+  program.  The request and server programs may not know about the
+  disconnection until about a minute later.  It is recommended that
+  this program be used with the "d" command in the broadcast console.
+
+
+============================================================================
+talk - send a message to the client program to be displayed on the screen.
+
+
+SYNOPSIS
+  talk ip [port]
+
+  Very similar to terminate, except sends a text message to be
+  displayed on the client's screen.  Currently, all this program
+  does is send the message "hello, world."
+
+
