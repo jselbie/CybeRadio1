@@ -1,0 +1,34 @@
+Also provided are several files for "hackers only".
+Everything is provided "as is", and doesn't get my general support.
+
+
+The first is the WWW demo programs.  This is a modified version of the
+client program that WREK uses to send sample audio bits over the web
+as .au soundfiles.
+
+wwwdemo.c was hacked to work under Solaris, and is provided.
+Also included is the CGI-BIN script used to run the "web_demo".
+It's actually an older version, of the CR1, but stil compatible.
+
+You will need the program "raw2audio" available on most Sun's
+in the /usr/demo/SOUND directory to correctly put a header on 
+the file that is generated.
+
+If I recall correctly, this program is not distibuted under Solaris, but
+the source and binary were distributed with SunOS 4.  You can probably
+find an implementation for this program on the net.  I can't distribute
+this program, because Sun owns the rights to it.
+
+corresponding files: wwwdemo.c and  wwwdemo.cgi
+
+
+
+Finally:
+ Are there any Python hacker out there in the audience?
+
+ This is an implementation of the client program written in Python,
+ a way cool language.  It requires that the Sun Audio package be installed.
+
+corresponding file: cr1.py 
+
+

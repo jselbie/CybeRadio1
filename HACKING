@@ -1,0 +1,12 @@
+
+If you are interested in modifying CR1 for whatever reason.
+Two files have been provided to detail the client/server communication
+protocols.
+
+The first file is "packet.format" which details how the bytes are ordered
+"on the wire".
+
+The second file is "protocol" which details the packets exchanged
+between a client and server sesssion.
+
+
