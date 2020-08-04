@@ -25,7 +25,8 @@
 
 #endif
 
-
+#include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -39,7 +40,6 @@
 
 unsigned char *shm;
 char audio_file_arg[40] = "/dev/audio";
-extern char *optarg;
 
 void main(int argc, char *argv[])
 {
@@ -95,7 +95,7 @@ void main(int argc, char *argv[])
   bsin.sin_port = htons(SERVER_SEND_PORT);
   bsin.sin_addr.s_addr = INADDR_ANY;
  
-  bind(bsock, &bsin, sizeof(bsin));
+  bind(bsock, (struct sockaddr*)&bsin, sizeof(bsin));
 
   byte_mask = shm + CONNECTION_MASK_START;
   error_mask = shm + ERROR_MASK_START;
@@ -120,8 +120,9 @@ void main(int argc, char *argv[])
     {
       if (byte_mask[x])
       {
+        struct sockaddr* addr = (struct sockaddr*)(sock_start + USER_RECORD_SIZE * x);
         if (sendto(bsock, audio_buffer, PLAYSZ+i+4+1, 0,
-                   sock_start+USER_RECORD_SIZE*x, sizeof(sin)) < 0)
+                   addr, sizeof(sin)) < 0)
         { 
           fprintf(stderr, "sendto() error: %d\n", errno);
           error_mask[x] = error_mask[x] + 1;

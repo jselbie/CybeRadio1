@@ -14,6 +14,13 @@
 
 #include "circ.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+
+#include <unistd.h>
+
 
 struct circular_buffer * new_circular_buffer (size_t fifo_len) {
    struct circular_buffer * self = 

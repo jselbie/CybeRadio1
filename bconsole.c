@@ -26,7 +26,7 @@
 #endif
 
 #include <stdio.h>
-
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -79,22 +79,21 @@ void display_stat(int channel, int amt)
   }
   
   lock_memory();
-    bcopy(shared_memory+USER_RECORD_START+actual_channel*USER_RECORD_SIZE,
-          user_record, USER_RECORD_SIZE);
+    memcpy(user_record, shared_memory + USER_RECORD_START + actual_channel * USER_RECORD_SIZE, USER_RECORD_SIZE);
   unlock_memory();
 
-  bcopy(user_record+SOCK_OFFSET, &sock, sizeof(sock));
+  memcpy(&sock, user_record + SOCK_OFFSET, sizeof(sock));
   port = ntohs(sock.sin_port);
   strcpy(address_string, inet_ntoa(sock.sin_addr));
   
-  bcopy(user_record+CONNECT_OFFSET, &connect, sizeof(connect));
-  bcopy(user_record+LAST_OFFSET, &last, sizeof(last));
+  memcpy(&connect, user_record + CONNECT_OFFSET, sizeof(connect));
+  memcpy(&last, user_record + LAST_OFFSET, sizeof(last));
 
-  bcopy(user_record+USER_NAME_OFFSET, user_name, 20);
+  memcpy(user_name, user_record + USER_NAME_OFFSET, 20);
   user_name[19] = '\0';
-  bcopy(user_record+HOST_NAME_OFFSET, host_name, 30);
+  memcpy(host_name, user_record + HOST_NAME_OFFSET, 30);
   host_name[29] = '\0';
-  bcopy(user_record+DOMAIN_NAME_OFFSET, domain_name, 30);
+  memcpy(domain_name, user_record + DOMAIN_NAME_OFFSET, 30);
   domain_name[29] = '\0';
 
   printf("channel: %d  ip: %s  port: %u connect: %d  %s@%s",

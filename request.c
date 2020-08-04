@@ -25,6 +25,11 @@
 
 #endif
 
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <memory.h>
+#include <error.h>
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -49,11 +54,10 @@
 
 static unsigned char *shm; 
 time_t start;
-extern h_errno;
 
 int child_pid = 0;
 
-void request_signal_handler(void)
+void request_signal_handler(int sig)
 {
   if (child_pid)
     kill (child_pid, SIGKILL);
@@ -81,7 +85,7 @@ struct sockaddr_in build_sock(struct sockaddr_in sockin, unsigned char *packet)
   struct sockaddr_in sock;
   short port;
 
-  bcopy(packet+sizeof(HEADER), &port, 2);
+  memcpy(&port, packet + sizeof(HEADER), 2);
 
   sock.sin_family = AF_INET;
   sock.sin_port = port;  /* already in network byte order */
@@ -172,10 +176,10 @@ int update_list(struct sockaddr_in sin, unsigned char *info)
 
   printf("new client added\n");
   strncpy(user_host, slot+USER_NAME_OFFSET, 20);
-  strncat(user_host, "@", 1);
+  strcat(user_host, "@");
   strncat(user_host, slot+HOST_NAME_OFFSET, 30);
   if (slot[DOMAIN_NAME_OFFSET] != '\0') {
-    strncat(user_host, ".", 1);
+    strcat(user_host, ".");
     strncat(user_host, slot+DOMAIN_NAME_OFFSET, 30);
   }
   syslog(LOG_INFO|LOG_DAEMON, "CYBER-RADIO-1: connection added from %s (%s)\n",
@@ -210,10 +214,10 @@ int remove_list(struct sockaddr_in sin, unsigned char *info)
 
         slot = shm + USER_RECORD_START + x*USER_RECORD_SIZE;
         strncpy(user_host, slot+USER_NAME_OFFSET, 20);
-        strncat(user_host, "@", 1);
+        strcat(user_host, "@");
         strncat(user_host, slot+HOST_NAME_OFFSET, 30);
         if (slot[DOMAIN_NAME_OFFSET] != '\0') {
-          strncat(user_host, ".", 1);
+          strcat(user_host, ".");
           strncat(user_host, slot+DOMAIN_NAME_OFFSET, 30);
         }
         syslog(LOG_INFO|LOG_DAEMON, "CYBER-RADIO-1: self-disconnect from %s\n",user_host);

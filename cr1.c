@@ -30,10 +30,12 @@
 #define SGI_IRIX
 #endif
 
+#include <string.h>
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <signal.h> 
@@ -76,7 +78,6 @@ char audio_file_arg[40] = "/dev/audio";
 char receive_arg[40] = SERVER_NAME;
 int port_arg = DATA_PORT;
 int remote_port_arg = CONTROL_PORT;
-extern char *optarg;
 
 int use_stdout = 0;
 int use_alt_device = 0;
@@ -144,14 +145,14 @@ void build_request_pack(int port)
   struct hostent *hp;
   int ip = 0;
 
-  bzero(request_pack, 200);
+  memset(request_pack, '\0', sizeof(request_pack));
  
   strcpy(request_pack, HEADER);  /* place stupid header message */
  
   /* place port number within the 2 bytes */
   header_size = i = sizeof(HEADER);
   p = htons(port);
-  bcopy(&p, request_pack+i, 2);
+  memcpy(request_pack + i, &p, 2);
  
   /* put the user name on the data structure */
   uid = geteuid();
@@ -273,8 +274,7 @@ void main(int argc, char *argv[])
      case ('?') : 
      case ('h') : 
      default :
-       fprintf(stderr, "USAGE: %s [-a audiofile | -o] [-p receiveport]
-[-r serverport] [-i server_ip_address]\n", argv[0]);
+       fprintf(stderr, "USAGE: %s [-a audiofile | -o] [-p receiveport] [-r serverport] [-i server_ip_address]\n", argv[0]);
        return;
     }
   }

@@ -25,9 +25,12 @@
 
 #endif
 
+#include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <signal.h> 
@@ -98,7 +101,7 @@ void main(int argc, char *argv[])
 
   attempt = 0;
   for (x = 0; x<15; x++)
-    if (sendto(s, request_pack, 200, 0, &sin, sizeof(sin)) < 0)
+    if (sendto(s, request_pack, 200, 0, (struct sockaddr*)&sin, sizeof(sin)) < 0)
       printf("error: sendto: %d\n", errno);
   close(s);
 

@@ -28,8 +28,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include <netdb.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 #include <signal.h> 
 #include <stdio.h>
 #include <fcntl.h>
@@ -87,11 +91,11 @@ void main(int argc, char *argv[])
      in inter.net.dot.format, then ip gets set.  Else the ip of the
      server is derived from the hp->h_addr value from gethostbyname */
   if (ip)
-    bcopy(&ip, &sin.sin_addr, sizeof(ip));
+    memcpy(&sin.sin_addr, &ip, sizeof(ip));
   else
-    bcopy(hp->h_addr, &sin.sin_addr, hp->h_length);
+    memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
 
-  bzero(request_pack, 200);
+  memset(request_pack, '\0', sizeof(request_pack));
   strcpy(request_pack, HEADER);  /* place stupid header message */
   i = sizeof(HEADER);  
   request_pack[i] = TEXT;
@@ -99,7 +103,7 @@ void main(int argc, char *argv[])
 
   attempt = 0;
   while (attempt < 10)
-    if (sendto(s, request_pack, 200, 0, &sin, sizeof(sin)) < 0)
+    if (sendto(s, request_pack, 200, 0, (struct sockaddr*)(&sin), sizeof(sin)) < 0)
       printf("error: sendto: %d\n", errno);
     else break;
   close(s);
